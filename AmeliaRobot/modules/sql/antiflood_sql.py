@@ -1,6 +1,6 @@
 import threading
 
-from sqlalchemy import String, Column, Integer, UnicodeText
+from sqlalchemy import String, Column, Integer, BigInteger, UnicodeText
 
 from AmeliaRobot.modules.sql import SESSION, BASE
 
@@ -12,7 +12,7 @@ DEF_OBJ = (None, DEF_COUNT, DEF_LIMIT)
 class FloodControl(BASE):
     __tablename__ = "antiflood"
     chat_id = Column(String(14), primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     count = Column(Integer, default=DEF_COUNT)
     limit = Column(Integer, default=DEF_LIMIT)
 
@@ -98,7 +98,9 @@ def set_flood_strength(chat_id, flood_type, value):
         curr_setting = SESSION.query(FloodSettings).get(str(chat_id))
         if not curr_setting:
             curr_setting = FloodSettings(
-                chat_id, flood_type=int(flood_type), value=value
+                chat_id,
+                flood_type=int(flood_type),
+                value=value,
             )
 
         curr_setting.flood_type = int(flood_type)
@@ -113,8 +115,7 @@ def get_flood_setting(chat_id):
         setting = SESSION.query(FloodSettings).get(str(chat_id))
         if setting:
             return setting.flood_type, setting.value
-        else:
-            return 1, "0"
+        return 1, "0"
 
     finally:
         SESSION.close()
